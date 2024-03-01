@@ -33,7 +33,7 @@ Site Checker is a Python script that checks a website for outgoing connections, 
 4. Run the script:
 
     ```
-    python main.py
+    python crawler.py
     ```
 
 5. Follow the prompts to enter the URL to check and specify the filename for the report.
