@@ -1,8 +1,11 @@
+import time
+
 import requests
 import urllib.parse
 import socket
 from bs4 import BeautifulSoup
 from collections import deque
+
 
 def resolve_domain(domain):
     try:
@@ -11,7 +14,8 @@ def resolve_domain(domain):
     except socket.gaierror:
         return "Unable to resolve"
 
-def find_connections(url):
+
+def find_connections(url, base_url):
     connections = set()
     connection_info = []
 
@@ -45,13 +49,13 @@ def find_connections(url):
                 resolved_ip = resolve_domain(domain)
                 connection_info.append({"Domain": domain, "Path": path, "Resolved IP": resolved_ip})
 
-
-       
         print("HTTP Response Headers:")
         for header, value in response.headers.items():
             print(f"{header}: {value}")
-        print("Resolved IP Address:", info["Resolved IP Address"])
+        print("IP Address:", info["Resolved IP Address"])
+        print("\n-----")
         print("Connections:")
+        time.sleep(0.6)
         for info in connection_info:
             print("Domain:", info["Domain"])
             print("Path:", info["Path"])
@@ -63,11 +67,10 @@ def find_connections(url):
 
     return connections, info
 
-
-
 def crawl_site(base_url):
     visited = set()
     queue = deque([base_url])
+    base_domain = urllib.parse.urlparse(base_url).netloc  # Extract the domain of the base URL
     report = []
 
     while queue:
@@ -86,7 +89,7 @@ def crawl_site(base_url):
             print("=INFO=======================================")
             print(f"URL: {url}, Status Code: {status_code}")
             if response.status_code == 200:
-                connections, conn_info = find_connections(url)
+                connections, conn_info = find_connections(url, base_url)
                 info.update(conn_info)
                 report.append(info)
 
@@ -94,18 +97,21 @@ def crawl_site(base_url):
                 links = soup.find_all('a', href=True)
                 for link in links:
                     next_url = urllib.parse.urljoin(url, link['href'])
-                    if next_url not in visited:
+                    parsed_next_url = urllib.parse.urlparse(next_url)
+                    # Check if the domain of the next URL matches the domain of the base URL
+                    if parsed_next_url.netloc == base_domain:
                         queue.append(next_url)
             else:
                 report.append(info)
 
-
-            print("-" * 50)
+         
         except requests.RequestException as e:
             print(f"Error accessing {url}: {e}")
             print("-" * 50)
 
     return report
+
+
 
 def make_report(report, filename):
     with open(filename, "w") as file:
@@ -123,8 +129,14 @@ def make_report(report, filename):
                     file.write(f"  {connection}\n")
             file.write("\n")
 
+
 if __name__ == "__main__":
-    url = input("Enter the URL to check: ")
-    report_filename = input("Enter the filename to save the report: ")
-    report = crawl_site(url)
-    make_report(report, report_filename)
+    try:
+        url = input("Enter the URL to check: ")
+        report_filename = input("Enter the filename to save the report: ")
+        report = crawl_site(url)
+        make_report(report, report_filename)
+    except KeyboardInterrupt:
+        print("ended")
+    except Exception as e:
+        print(f"error {e}")
