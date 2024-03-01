@@ -2,6 +2,8 @@
 
 Site Checker is a Python script that checks a website for outgoing connections, resolves domain names, and generates a report of the findings. It can be used to inspect websites for potentially malicious scripts, connections, or other suspicious activity.
 
+Can be used to find unwanted connections and malware
+
 ## Features
 
 - Checks for outgoing connections from the specified website.
