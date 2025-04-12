@@ -12,6 +12,10 @@ Can be used to find unwanted connections and malware
 - Supports analysis of HTML tags including <a>, <img>, <script>, and <link>.
 - Uses BeautifulSoup for HTML parsing and Requests for HTTP requests.
 
+## malicious-connections
+
+integrated connection crawler with urlhaus and added random user-agents to be able to crawl better and check if there is any connections to malicious IPs (requires URLhaus api key)
+
 ## Usage
 
 1. Clone the repository:
